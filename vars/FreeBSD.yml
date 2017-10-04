@@ -1,0 +1,6 @@
+---
+# vars file for sbaerlocher.sshd
+
+sshd_service_name: sshd
+ssh_owner: root
+ssh_group: wheel
