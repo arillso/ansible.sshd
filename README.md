@@ -43,7 +43,7 @@ None
 |`ssh_allow_groups` | '' | if specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns.|
 |`ssh_print_motd` | false | false to disable printing of the MOTD|
 |`ssh_print_last_log` | false | false to disable display of last login information|
-|`sftp_enabled` | false | true to enable sftp configuration|
+|`sftp_enabled` | true | false to disable sftp configuration|
 |`sftp_chroot_dir` | /home/%u | change default sftp chroot location|
 |`ssh_client_roaming` | false | enable experimental client roaming|
 |`sshd_moduli_minimum` | 2048 | remove Diffie-Hellman parameters smaller than the defined size to mitigate logjam|

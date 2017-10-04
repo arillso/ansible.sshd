@@ -100,7 +100,7 @@ ssh_banner: false # sshd
 ssh_print_debian_banner: false # sshd (Debian OS family only)
 
 # true to enable sftp configuration
-sftp_enabled: false
+sftp_enabled: true
 
 # change default sftp chroot location
 sftp_chroot_dir: /home/%u
