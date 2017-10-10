@@ -66,3 +66,14 @@
     group: "{{ ssh_group }}"
   tags:
     - configuration
+  
+- block:
+  - name: restart sshd
+    become: true
+    service: name={{ sshd_service_name }} state=restarted
+  - name: change ssh port to {{ ssh_server_port }}
+    set_fact:
+      ansible_ssh_port: "{{ ssh_server_port }}"
+  when: ansible_ssh_port != ssh_server_port
+  tags:
+    - configuration
