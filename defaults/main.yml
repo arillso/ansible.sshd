@@ -34,7 +34,7 @@ ssh_client_password_login: false          # ssh
 ssh_server_password_login: false          # sshd
 
 # ports on which ssh-server should listen
-ssh_server_ports: ['22']      # sshd
+ssh_server_port: '22'      # sshd
 
 # port to which ssh-client should connect
 ssh_client_port: '22'         # ssh

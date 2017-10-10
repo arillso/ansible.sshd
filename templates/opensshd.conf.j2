@@ -10,9 +10,7 @@
 PermitRootLogin {{ 'without-password' if (ssh_allow_root_with_key|bool) else 'no' }}
 
 # Define which port sshd should listen to. Default to `22`.
-{% for port in ssh_server_ports -%}
-Port {{port}}
-{% endfor %}
+Port {{ ssh_server_port }}
 
 # Address family should always be limited to the active network configuration.
 AddressFamily {{ 'any' if (network_ipv6_enable|bool) else 'inet' }}
