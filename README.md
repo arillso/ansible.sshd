@@ -33,6 +33,7 @@ None
 |`ssh_client_alive_count` | 3 | defines how often keep-alive messages are sent |
 |`ssh_permit_tunnel` | false | true if SSH Port Tunneling is required |
 |`ssh_remote_hosts` | [] | one or more hosts and their custom options for the ssh-client. Default is empty. See examples in `defaults/main.yml`.|
+|`ssh_empty_passwords` | false | false when user not logged in wehn not password set. |
 |`ssh_allow_root_with_key` | false | false to disable root login altogether. Set to true to allow root to login via key-based mechanism.|
 |`ssh_allow_tcp_forwarding` | false | false to disable TCP Forwarding. Set to true to allow TCP Forwarding.|
 |`ssh_allow_agent_forwarding` | false | false to disable Agent Forwarding. Set to true to allow Agent Forwarding.|

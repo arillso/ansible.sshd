@@ -63,6 +63,8 @@ ssh_permit_tunnel: false
 #     options: ['StrictHostKeyChecking no']
 ssh_remote_hosts: []
 
+# false when user not logged in wehn not password set
+ssh_empty_passwords: false              # sshd
 # false to disable root login altogether. Set to true to allow root to login via key-based mechanism.
 ssh_allow_root_with_key: false          # sshd
 
