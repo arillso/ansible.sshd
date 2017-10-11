@@ -74,6 +74,6 @@
   - name: change ssh port to {{ ssh_server_port }}
     set_fact:
       ansible_ssh_port: "{{ ssh_server_port }}"
-  when: ansible_ssh_port != ssh_server_port
+  when: (ansible_ssh_port | default(22)) != ssh_server_port
   tags:
     - configuration
