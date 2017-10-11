@@ -79,6 +79,17 @@ None
 
 ## Changelog
 
+### 1.1
+
+* add option when no password set by login
+* add restart sshd by port change
+* default value when ansible_ssh_port not set
+
+### 1.0
+
+* Initial release
+
+
 ## Author
 
 * [Simon Bärlocher](https://sbaerlocher.ch)
