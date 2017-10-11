@@ -44,6 +44,7 @@
     - configuration
 
 - name: create sshd_config and set permissions to root/600
+  become: true
   template: 
     src: "opensshd.conf.j2"
     dest: "/etc/ssh/sshd_config"
@@ -56,11 +57,23 @@
     - configuration
 
 - name: create ssh_config and set permissions to root/644
+  become: true
   template: 
     src: "openssh.conf.j2"
     dest: "/etc/ssh/ssh_config"
     mode: 0644 
     owner: "{{ ssh_owner }}"
     group: "{{ ssh_group }}"
+  tags:
+    - configuration
+  
+- block:
+  - name: restart sshd
+    become: true
+    service: name={{ sshd_service_name }} state=restarted
+  - name: change ssh port to {{ ssh_server_port }}
+    set_fact:
+      ansible_ssh_port: "{{ ssh_server_port }}"
+  when: (ansible_ssh_port | default(22)) != ssh_server_port
   tags:
     - configuration

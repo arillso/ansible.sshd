@@ -2,4 +2,5 @@
 # handlers file for sbaerlocher.sshd
 
 - name: restart sshd
+  become: true
   service: name={{ sshd_service_name }} state=restarted
