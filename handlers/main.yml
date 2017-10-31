@@ -1,5 +1,5 @@
 ---
-# handlers file for sbaerlocher.sshd
+# handlers file for arillso.sshd
 
 - name: restart sshd
   become: true
