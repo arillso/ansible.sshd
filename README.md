@@ -79,6 +79,11 @@ None
 
 ## Changelog
 
+### 1.2
+
+* rename role name
+* update meta
+
 ### 1.1
 
 * add option when no password set by login
