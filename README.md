@@ -7,7 +7,7 @@ This role provides secure ssh-client and ssh-server configurations.  It is inten
 ## Installation
 
 ```
-$ ansible-galaxy install sbaerlocher.sshd
+$ ansible-galaxy install arillso.sshd
 ```
 
 ## Requirements
@@ -74,7 +74,7 @@ None
 ```yml
 - hosts: all
   roles:
-     - sbaerlocher.sshd
+     - arillso.sshd
 ```
 
 ## Changelog

@@ -1,5 +1,5 @@
 ---
-# vars file for sbaerlocher.sshd
+# vars file for arillso.sshd
 
 sshd_service_name: ssh
 ssh_owner: root

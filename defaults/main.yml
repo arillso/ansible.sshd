@@ -1,5 +1,5 @@
 ---
-# defaults file for sbaerlocher.sshd
+# defaults file for arillso.sshd
 
 # true if IPv6 is needed
 network_ipv6_enable: false              # sshd + ssh
