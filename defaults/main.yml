@@ -96,10 +96,10 @@ ssh_print_motd: false      # sshd
 ssh_print_last_log: false    # sshd
 
 # false to disable serving /etc/ssh/banner.txt before authentication is allowed
-ssh_banner: false # sshd
+ssh_banner: false  # sshd
 
 # false to disable distribution version leakage during initial protocol handshake
-ssh_print_debian_banner: false # sshd (Debian OS family only)
+ssh_print_debian_banner: false  # sshd (Debian OS family only)
 
 # true to enable sftp configuration
 sftp_enabled: true
