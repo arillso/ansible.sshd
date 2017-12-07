@@ -6,8 +6,8 @@ This role provides secure ssh-client and ssh-server configurations.  It is inten
 
 ## Installation
 
-```
-$ ansible-galaxy install arillso.sshd
+```bash
+ansible-galaxy install arillso.sshd
 ```
 
 ## Requirements
@@ -79,6 +79,11 @@ None
 
 ## Changelog
 
+### 1.3
+
+* new travis check
+* syntax clean
+
 ### 1.2
 
 * rename role name
@@ -94,11 +99,10 @@ None
 
 * Initial release
 
-
 ## Author
 
 * [Simon Bärlocher](https://sbaerlocher.ch)
- 
+
 ## License
 
 This project is under the MIT License. See the [LICENSE](https://sbaerlo.ch/licence) file for the full license text.
