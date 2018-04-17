@@ -79,6 +79,10 @@ None
 
 ## Changelog
 
+### 1.4
+
+* update loop_vars
+
 ### 1.3
 
 * new travis check
