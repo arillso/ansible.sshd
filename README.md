@@ -79,6 +79,10 @@ None
 
 ## Changelog
 
+### 1.5
+
+* add ssh_ciphers
+
 ### 1.4
 
 * update loop_vars

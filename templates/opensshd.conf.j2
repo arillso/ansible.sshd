@@ -10,7 +10,9 @@
 PermitRootLogin {{ 'without-password' if (ssh_allow_root_with_key|bool) else 'no' }}
 
 # Define which port sshd should listen to. Default to `22`.
-Port {{ ssh_server_port }}
+{% for port in ssh_server_ports -%}
+Port {{port}}
+{% endfor %}
 
 # Address family should always be limited to the active network configuration.
 AddressFamily {{ 'any' if (network_ipv6_enable|bool) else 'inet' }}
@@ -46,40 +48,17 @@ LogLevel VERBOSE
 # eg ruby Net::SSH::Transport::CipherFactory requires cbc-versions of the given openssh ciphers to work
 # -- see: (http://net-ssh.github.com/net-ssh/classes/Net/SSH/Transport/CipherFactory.html)
 #
-{% if ssh_server_cbc_required -%}
-    {% if (ansible_distribution == 'Ubuntu' and ansible_distribution_version >= '14.04') or (ansible_distribution == 'Debian' and ansible_distribution_version >= '8') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version >= '7') or (ansible_distribution == 'FreeBSD' and ansible_distribution_version >= '11') -%}
-        Ciphers {{ ssh_ciphers_66_weak | join(',') }}
-    {% else %}
-        Ciphers {{ ssh_ciphers_53_weak | join(',') }}
-    {% endif %}
-{% else -%}
-    {% if (ansible_distribution == 'Ubuntu' and ansible_distribution_version >= '14.04') or (ansible_distribution == 'Debian' and ansible_distribution_version >= '8') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version >= '7') or (ansible_distribution == 'FreeBSD' and ansible_distribution_version >= '11') -%}
-        Ciphers {{ ssh_ciphers_66_default | join(',') }}
-    {% else -%}
-        Ciphers {{ ssh_ciphers_53_default | join(',') }}
-    {% endif %}
-{% endif %}
+
+{# This outputs "Ciphers <list-of-ciphers>" if ssh_ciphers is defined or "#Ciphers" if ssh_ciphers is undefined #}
+{{ "Ciphers "+ssh_ciphers| join(',') if ssh_ciphers else "Ciphers"|comment }}
 
 # **Hash algorithms** -- Make sure not to use SHA1 for hashing, unless it is really necessary.
 # Weak HMAC is sometimes required if older package versions are used
 # eg Ruby's Net::SSH at around 2.2.* doesn't support sha2 for hmac, so this will have to be set true in this case.
 #
 
-{% if ssh_server_weak_hmac -%}
-    {% if (ansible_distribution == 'Ubuntu' and ansible_distribution_version >= '14.04') or (ansible_distribution == 'Debian' and ansible_distribution_version >= '8') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version >= '7') or (ansible_distribution == 'FreeBSD' and ansible_distribution_version >= '11') -%}
-        MACs {{ ssh_macs_66_weak | join(',') }}
-    {% elif ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version <= '6' -%}
-        MACs {{ ssh_macs_53_default | join(',') }}
-    {% endif %}
-{% else -%}
-    {% if (ansible_distribution == 'Ubuntu' and ansible_distribution_version >= '14.04') or (ansible_distribution == 'Debian' and ansible_distribution_version >= '8') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version >= '7') or (ansible_distribution == 'FreeBSD' and ansible_distribution_version >= '11') -%}
-        MACs {{ ssh_macs_66_default | join(',') }}
-    {% elif ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version <= '6' -%}
-        MACs {{ ssh_macs_53_default | join(',') }}
-    {% else -%}
-        MACs {{ ssh_macs_59_default | join(',') }}
-    {% endif %}
-{% endif %}
+{# This outputs "MACs <list-of-macs>" if ssh_macs is defined or "#MACs" if ssh_macs is undefined #}
+{{ "MACs "+ssh_macs| join(',') if ssh_macs else "MACs"|comment }}
 
 # Alternative setting, if OpenSSH version is below v5.9
 #MACs hmac-ripemd160
@@ -88,33 +67,22 @@ LogLevel VERBOSE
 # Weak kex is sometimes required if older package versions are used
 # eg ruby's Net::SSH at around 2.2.* doesn't support sha2 for kex, so this will have to be set true in this case.
 # based on: https://bettercrypto.org/static/applied-crypto-hardening.pdf
-{% if (ansible_distribution == 'Ubuntu' and ansible_distribution_version >= '14.04') or (ansible_distribution == 'Debian' and ansible_distribution_version >= '8') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version >= '7') or (ansible_distribution == 'FreeBSD' and ansible_distribution_version >= '11') -%}
-    {% if ssh_server_weak_kex -%}
-        KexAlgorithms {{ ssh_kex_66_weak | join(',') }}
-    {% else -%}
-        KexAlgorithms {{ ssh_kex_66_default | join(',') }}
-    {% endif %}
-{% else -%}
-    {% if ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version <= '6' -%}
-        #KexAlgorithms
-    {% elif ssh_server_weak_kex -%}
-        KexAlgorithms {{ sshd_kex_59_weak | join(',') }}
-    {% else -%}
-        KexAlgorithms {{ ssh_kex_59_default | join(',') }}
-    {% endif %}
-{% endif %}
+
+{# This outputs "KexAlgorithms <list-of-algos>" if ssh_kex is defined or "#KexAlgorithms" if ssh_kex is undefined #}
+{{ "KexAlgorithms "+ssh_kex| join(',') if ssh_kex else "KexAlgorithms"|comment }}
 
 # Authentication
 # --------------
 
 # Secure Login directives.
-UseLogin no
+{% if sshd_version.stdout | float  < 7.5 -%}
 UsePrivilegeSeparation {% if (ansible_distribution == 'Debian' and ansible_distribution_major_version <= '6') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version <= '6') -%}{{ssh_ps53}}{% else %}{{ssh_ps59}}{% endif %}
+{% endif %}
 
 LoginGraceTime 30s
 MaxAuthTries {{ssh_max_auth_retries}}
 MaxSessions 10
-MaxStartups 10:30:100
+MaxStartups {{ssh_max_startups}}
 
 # Enable public key authentication
 PubkeyAuthentication yes
@@ -126,10 +94,19 @@ HostbasedAuthentication no
 
 # Enable PAM to enforce system wide rules
 UsePAM {{ 'yes' if (ssh_use_pam|bool) else 'no' }}
+{% if ssh_google_auth %}
+# Force public key auth then ask for google auth code
+AuthenticationMethods publickey,keyboard-interactive
+{% endif %}
+
+# Force public key auth then ask for pam device input
+{% if ssh_pam_device %}
+AuthenticationMethods publickey,keyboard-interactive:pam
+{% endif %}
 
 # Disable password-based authentication, it can allow for potentially easier brute-force attacks.
 PasswordAuthentication {{ 'yes' if (ssh_server_password_login|bool) else 'no' }}
-PermitEmptyPasswords {{ 'yes' if (ssh_empty_passwords|bool) else 'no' }}
+PermitEmptyPasswords no
 ChallengeResponseAuthentication {{ 'yes' if (ssh_challengeresponseauthentication|bool) else 'no' }}
 
 # Only enable Kerberos authentication if it is configured.
@@ -159,6 +136,17 @@ DenyGroups {{ssh_deny_groups}}
 AllowGroups {{ssh_allow_groups}}
 {% endif %}
 
+{% if ssh_authorized_keys_file %}
+AuthorizedKeysFile {{ ssh_authorized_keys_file }}
+{% endif %}
+
+{% if ssh_trusted_user_ca_keys_file %}
+TrustedUserCAKeys {{ ssh_trusted_user_ca_keys_file }}
+{%    if ssh_authorized_principals_file  %}
+AuthorizedPrincipalsFile {{ ssh_authorized_principals_file }}
+{%     endif %}
+{% endif %}
+
 # Network
 # -------
 
@@ -180,8 +168,16 @@ AllowTcpForwarding {{ 'yes' if (ssh_allow_tcp_forwarding|bool) else 'no' }}
 # no real advantage without denied shell access
 AllowAgentForwarding {{ 'yes' if (ssh_allow_agent_forwarding|bool) else 'no' }}
 
+{% if ssh_gateway_ports|bool %}
+# Port forwardings are forced to bind to the wildcard address
+GatewayPorts yes
+{% elif ssh_gateway_ports == 'clientspecified' %}
+# Clients allowed to specify which address to bind port forwardings to
+GatewayPorts clientspecified
+{% else %}
 # Do not allow remote port forwardings to bind to non-loopback addresses.
 GatewayPorts no
+{% endif %}
 
 # Disable X11 forwarding, since local X11 display could be accessed through forwarded connection.
 X11Forwarding no
@@ -232,13 +228,15 @@ Subsystem sftp internal-sftp -l INFO -f LOCAL6
 
 # These lines must appear at the *end* of sshd_config
 Match Group sftponly
-ForceCommand internal-sftp -l INFO -f LOCAL6
-ChrootDirectory {{ sftp_chroot_dir }}
-AllowTcpForwarding no
-AllowAgentForwarding no
-PasswordAuthentication no
-PermitRootLogin no
-X11Forwarding no
+    ForceCommand internal-sftp -l INFO -f LOCAL6
+{% if sftp_chroot %}
+    ChrootDirectory {{ sftp_chroot_dir }}
+{% endif %}
+    AllowTcpForwarding no
+    AllowAgentForwarding no
+    PasswordAuthentication no
+    PermitRootLogin no
+    X11Forwarding no
 {% endif %}
 
 {% if ssh_server_match_group %}
