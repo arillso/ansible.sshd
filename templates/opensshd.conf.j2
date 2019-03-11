@@ -180,7 +180,7 @@ GatewayPorts no
 {% endif %}
 
 # Disable X11 forwarding, since local X11 display could be accessed through forwarded connection.
-X11Forwarding no
+X11Forwarding {{ 'yes' if (ssh_server_x11_forwarding|bool) else 'no' }}
 X11UseLocalhost yes
 
 # User environment configuration
