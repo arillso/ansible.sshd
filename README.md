@@ -1,6 +1,6 @@
 # Ansible Role: sshd
 
-[![Build Status](https://img.shields.io/travis/arillso/ansible.sshd.svg?branch=master&style=popout-square)](https://travis-ci.org/arillso/ansible.sshd) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](https://sbaerlo.ch/licence) [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-sshd-blue.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd) [![Ansible Role](https://img.shields.io/ansible/role/d/id.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd)
+[![Build Status](https://img.shields.io/travis/arillso/ansible.sshd.svg?branch=master&style=popout-square)](https://travis-ci.org/arillso/ansible.sshd) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](https://sbaerlo.ch/licence) [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-sshd-blue.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd) [![Ansible Role](https://img.shields.io/ansible/role/d/21612.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd)
 
 ## Description
 
