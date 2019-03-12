@@ -1,5 +1,7 @@
 # Ansible Role: sshd
 
+[![Build Status](https://img.shields.io/travis/arillso/ansible.sshd.svg?branch=master&style=popout-square)](https://travis-ci.org/arillso/ansible.sshd) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](https://sbaerlo.ch/licence) [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-sshd-blue.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd) [![Ansible Role](https://img.shields.io/ansible/role/d/id.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd)
+
 ## Description
 
 This role provides secure ssh-client and ssh-server configurations.  It is intended to be compliant with the [DevSec SSH  Baseline](https://github.com/dev-sec/ssh-baseline).
@@ -81,6 +83,10 @@ None
 
 ## Changelog
 
+### 1.6
+
+added option to enable sshd X11Forwarding
+
 ### 1.5
 
 * add ssh_ciphers
@@ -119,4 +125,4 @@ This project is under the MIT License. See the [LICENSE](https://sbaerlo.ch/lice
 
 ## Copyright
 
-(c) 2017, Simon Bärlocher
+(c) 2019, Simon Bärlocher
