@@ -235,5 +235,8 @@ sshd_moduli_minimum: 2048
 # disable ChallengeResponseAuthentication
 ssh_challengeresponseauthentication: false
 
+# disable GSSAPI authentication
+ssh_server_GSSAPI_auth: false
+
 # a list of public keys that are never accepted by the ssh server
 ssh_server_revoked_keys: []
