@@ -67,6 +67,7 @@ None
 |`ssh_use_dns` | `false` | Specifies whether sshd should look up the remote host name, and to check that the resolved host name for the remote IP address maps back to the very same IP address. |
 |`ssh_server_revoked_keys` | [] | a list of revoked public keys that the ssh server will always reject, useful to revoke known weak or compromised keys.|
 |`ssh_server_x11_forwarding` | `false` | `true` to enable X11Forwarding |
+|`ssh_server_GSSAPI_auth` | `false` | `true` to enable GSSAPIAuthentication |
 
 
 ## Dependencies
