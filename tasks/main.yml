@@ -133,7 +133,7 @@
 - name: set weak kex according to openssh-version if openssh >= 6.6
   set_fact:
     ssh_kex: "{{ ssh_kex_66_weak }}"
-  when: sshd_version.stdout >= '6.6' and ssh_server_weak_hmac and not ssh_kex
+  when: sshd_version.stdout >= '6.6' and ssh_server_weak_kex and not ssh_kex
   tags:
     - configuration
 
@@ -147,7 +147,7 @@
 - name: set weak kex according to openssh-version
   set_fact:
     ssh_kex: "{{ ssh_kex_59_weak }}"
-  when: sshd_version.stdout >= '5.9' and ssh_server_weak_hmac and not ssh_kex
+  when: sshd_version.stdout >= '5.9' and ssh_server_weak_kex and not ssh_kex
   tags:
     - configuration
 
