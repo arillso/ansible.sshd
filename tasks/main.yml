@@ -166,7 +166,7 @@
     mode: 0600
     owner: "{{ ssh_owner }}"
     group: "{{ ssh_group }}"
-    validate: "/usr/sbin/sshd -T -f %s"
+    validate: "/usr/sbin/sshd -t -f %s"
   notify: restart sshd
   tags:
     - configuration
