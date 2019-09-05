@@ -2,6 +2,7 @@
 # tasks file for arillso.sshd
 
 - name: Set ssh CA pub keys
+  become: true
   template:
     src: 'trusted_user_ca_keys.j2'
     dest: '{{ ssh_trusted_user_ca_keys_file }}'
@@ -11,6 +12,7 @@
   notify: restart sshd
 
 - name: Create ssh authorized principals directories
+  become: true
   file:
     path: '{{ item.path | dirname }}'
     mode: '{{ item.directorymode | default(0700) }}'
@@ -20,6 +22,7 @@
   with_items: '{{ ssh_authorized_principals }}'
 
 - name: Set ssh authorized principals
+  become: true
   template:
     src: 'authorized_principals.j2'
     dest: '{{ item.path }}'

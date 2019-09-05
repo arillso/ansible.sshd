@@ -30,6 +30,7 @@
   include_tasks: subtasks/crypto.yml
 
 - name: create revoked_keys and set permissions to root/600
+  become: true
   template:
     src: 'revoked_keys.j2'
     dest: '/etc/ssh/revoked_keys'
@@ -40,6 +41,7 @@
   when: ssh_server_hardening | bool
 
 - name: create sshd_config and set permissions to root/600
+  become: true
   template:
     src: 'opensshd.conf.j2'
     dest: '/etc/ssh/sshd_config'
@@ -51,6 +53,7 @@
   when: ssh_server_hardening | bool
 
 - name: create ssh_config and set permissions to root/644
+  become: true
   template:
     src: 'openssh.conf.j2'
     dest: '/etc/ssh/ssh_config'
