@@ -12,7 +12,7 @@
       apt:
         name:
           - openssh-server
-          - openssh-clients
+          - openssh-client
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
   roles:
