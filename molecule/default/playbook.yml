@@ -2,8 +2,11 @@
 - name: Converge
   hosts: all
   pre_tasks:
-    - name: install openssh
+    - name: install openssh-server
       package:
         name: openssh-server
+    - name: install openssh-clients
+      package:
+        name: openssh-clients
   roles:
     - role: arillso.sshd
