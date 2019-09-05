@@ -3,11 +3,19 @@
 # This is the ssh client system-wide configuration file.
 # See sshd_config(5) for more information on any settings used. Comments will be added only to clarify why a configuration was chosen.
 
+{% if sshd_custom_options -%}
+# Custom configuration that overwrites default configuration
+# ==========================================================
+{% for line in sshd_custom_options -%}
+{{ line }}
+{% endfor %}
+{% endif %}
+
 # Basic configuration
 # ===================
 
-# Either disable or only allowssh root login via certificates.
-PermitRootLogin {{ 'without-password' if (ssh_allow_root_with_key|bool) else 'no' }}
+# Either disable or only allow root login via certificates.
+PermitRootLogin {{ ssh_permit_root_login }}
 
 # Define which port sshd should listen to. Default to `22`.
 {% for port in ssh_server_ports -%}
@@ -15,7 +23,7 @@ Port {{port}}
 {% endfor %}
 
 # Address family should always be limited to the active network configuration.
-AddressFamily {{ 'any' if (network_ipv6_enable|bool) else 'inet' }}
+AddressFamily {{ 'any' if (ssh_ipv6_enable|bool) else 'inet' }}
 
 # Define which addresses sshd should listen to. Default to `0.0.0.0`, ie make sure you put your desired address in here, since otherwise sshd will listen to everyone.
 {% for address in ssh_listen_to -%}
@@ -75,7 +83,10 @@ LogLevel VERBOSE
 # --------------
 
 # Secure Login directives.
-{% if sshd_version.stdout | float  < 7.5 -%}
+{% if sshd_version.stdout is version('7.4', '<') %}
+UseLogin no
+{% endif %}
+{% if sshd_version.stdout is version('7.5', '<') %}
 UsePrivilegeSeparation {% if (ansible_distribution == 'Debian' and ansible_distribution_major_version <= '6') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version <= '6') -%}{{ssh_ps53}}{% else %}{{ssh_ps59}}{% endif %}
 {% endif %}
 
@@ -93,7 +104,9 @@ IgnoreUserKnownHosts yes
 HostbasedAuthentication no
 
 # Enable PAM to enforce system wide rules
+{% if ssh_pam_support -%}
 UsePAM {{ 'yes' if (ssh_use_pam|bool) else 'no' }}
+{% endif %}
 {% if ssh_google_auth %}
 # Force public key auth then ask for google auth code
 AuthenticationMethods publickey,keyboard-interactive
@@ -109,14 +122,16 @@ PasswordAuthentication {{ 'yes' if (ssh_server_password_login|bool) else 'no' }}
 PermitEmptyPasswords no
 ChallengeResponseAuthentication {{ 'yes' if (ssh_challengeresponseauthentication|bool) else 'no' }}
 
+{% if ssh_kerberos_support -%}
 # Only enable Kerberos authentication if it is configured.
 KerberosAuthentication no
 KerberosOrLocalPasswd no
 KerberosTicketCleanup yes
 #KerberosGetAFSToken no
+{% endif %}
 
 # Only enable GSSAPI authentication if it is configured.
-GSSAPIAuthentication {{ 'yes' if (ssh_server_GSSAPI_auth|bool) else 'no' }}
+GSSAPIAuthentication {{ 'yes' if ssh_gssapi_support else 'no' }}
 GSSAPICleanupCredentials yes
 
 # In case you don't use PAM (`UsePAM no`), you can alternatively restrict users and groups here. For key-based authentication this is not necessary, since all keys must be explicitely enabled.
@@ -136,15 +151,15 @@ DenyGroups {{ssh_deny_groups}}
 AllowGroups {{ssh_allow_groups}}
 {% endif %}
 
-{% if ssh_authorized_keys_file %}
+{% if ssh_authorized_keys_file -%}
 AuthorizedKeysFile {{ ssh_authorized_keys_file }}
 {% endif %}
 
-{% if ssh_trusted_user_ca_keys_file %}
+{% if ssh_trusted_user_ca_keys_file -%}
 TrustedUserCAKeys {{ ssh_trusted_user_ca_keys_file }}
-{%    if ssh_authorized_principals_file  %}
+{% if ssh_authorized_principals_file -%}
 AuthorizedPrincipalsFile {{ ssh_authorized_principals_file }}
-{%     endif %}
+{% endif %}
 {% endif %}
 
 # Network
@@ -164,34 +179,34 @@ PermitTunnel {{ 'yes' if (ssh_permit_tunnel|bool) else 'no' }}
 # no real advantage without denied shell access
 AllowTcpForwarding {{ 'yes' if (ssh_allow_tcp_forwarding|bool) else 'no' }}
 
-# Disable agent formwarding, since local agent could be accessed through forwarded connection.
+# Disable agent forwarding, since local agent could be accessed through forwarded connection.
 # no real advantage without denied shell access
 AllowAgentForwarding {{ 'yes' if (ssh_allow_agent_forwarding|bool) else 'no' }}
 
-{% if ssh_gateway_ports|bool %}
+{% if ssh_gateway_ports|bool -%}
 # Port forwardings are forced to bind to the wildcard address
 GatewayPorts yes
-{% elif ssh_gateway_ports == 'clientspecified' %}
+{% elif ssh_gateway_ports == 'clientspecified' -%}
 # Clients allowed to specify which address to bind port forwardings to
 GatewayPorts clientspecified
-{% else %}
+{% else -%}
 # Do not allow remote port forwardings to bind to non-loopback addresses.
 GatewayPorts no
 {% endif %}
 
 # Disable X11 forwarding, since local X11 display could be accessed through forwarded connection.
-X11Forwarding {{ 'yes' if (ssh_server_x11_forwarding|bool) else 'no' }}
+X11Forwarding no
 X11UseLocalhost yes
 
 # User environment configuration
 # ==============================
 
-{% if ssh_server_permit_environment_vars %}
+{% if ssh_server_permit_environment_vars -%}
 PermitUserEnvironment yes
-{% for item in ssh_server_permit_environment_vars %}
+{% for item in ssh_server_permit_environment_vars -%}
 AcceptEnv {{ item }}
 {% endfor %}
-{% else %}
+{% else -%}
 PermitUserEnvironment no
 {% endif %}
 
@@ -210,14 +225,14 @@ PrintLastLog {{ 'yes' if (ssh_print_last_log|bool) else 'no' }}
 
 Banner {{ '/etc/ssh/banner.txt' if (ssh_banner|bool) else 'none' }}
 
-{% if ansible_os_family == 'Debian' %}
+{% if ansible_os_family == 'Debian' -%}
 DebianBanner {{ 'yes' if (ssh_print_debian_banner|bool) else 'no' }}
 {% endif %}
 
 # Reject keys that are explicitly blacklisted
-#RevokedKeys /etc/ssh/revoked_keys
+RevokedKeys /etc/ssh/revoked_keys
 
-{% if sftp_enabled %}
+{% if ssh_sftp_enabled -%}
 # SFTP matching configuration
 # ===========================
 # Configuration, in case SFTP is used
@@ -229,8 +244,8 @@ Subsystem sftp internal-sftp -l INFO -f LOCAL6
 # These lines must appear at the *end* of sshd_config
 Match Group sftponly
     ForceCommand internal-sftp -l INFO -f LOCAL6
-{% if sftp_chroot %}
-    ChrootDirectory {{ sftp_chroot_dir }}
+{% if ssh_sftp_chroot %}
+    ChrootDirectory {{ ssh_sftp_chroot_dir }}
 {% endif %}
     AllowTcpForwarding no
     AllowAgentForwarding no
@@ -239,23 +254,38 @@ Match Group sftponly
     X11Forwarding no
 {% endif %}
 
-{% if ssh_server_match_group %}
-# Group matching configuration
+{% if ssh_server_match_address -%}
+# Address matching configuration
 # ============================
 
-{% for item in ssh_server_match_group %}
-Match Group {{ item.group }}
-    {{ item.rules | indent(4) }}
+{% for item in ssh_server_match_address -%}
+Match Address {{ item.address }}
+  {% for rule in item.rules %}
+    {{ rule | indent(4) }}
+  {% endfor %}
 {% endfor %}
 {% endif %}
 
+{% if ssh_server_match_group -%}
+# Group matching configuration
+# ============================
 
-{% if ssh_server_match_user %}
+{% for item in ssh_server_match_group -%}
+Match Group {{ item.group }}
+  {% for rule in item.rules %}
+    {{ rule | indent(4) }}
+  {% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if ssh_server_match_user -%}
 # User matching configuration
 # ===========================
 
-{% for item in ssh_server_match_user %}
+{% for item in ssh_server_match_user -%}
 Match User {{ item.user }}
-    {{ item.rules | indent(4) }}
+  {% for rule in item.rules %}
+    {{ rule | indent(4) }}
+  {% endfor %}
 {% endfor %}
 {% endif %}

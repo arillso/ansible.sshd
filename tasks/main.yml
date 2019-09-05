@@ -159,6 +159,7 @@
     - configuration
 
 - name: create sshd_config and set permissions to root/600
+  become: true
   template:
     src: 'opensshd.conf.j2'
     dest: '/etc/ssh/sshd_config'
