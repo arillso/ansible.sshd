@@ -14,6 +14,10 @@
           - openssh-server
           - openssh-client
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    - name: workaround directory
+      file:
+        path: '/var/run/sshd'
+        state: directory
 
   roles:
     - role: arillso.sshd

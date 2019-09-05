@@ -146,12 +146,12 @@ ssh_remote_hosts:
     options: ['StrictHostKeyChecking no']
 ```
 
-### ssh_permit_root_login
+### ssh_allow_root_with_key
 
 Set this to "without-password" or "yes" to allow root to login
 
 ```yml
-ssh_permit_root_login: 'no' # sshd
+ssh_allow_root_with_key: 'no' # sshd
 ```
 
 ### ssh_allow_tcp_forwarding

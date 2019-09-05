@@ -52,7 +52,7 @@ ssh_permit_tunnel: false
 ssh_remote_hosts: []
 
 # Set this to "without-password" or "yes" to allow root to login
-ssh_permit_root_login: 'no' # sshd
+ssh_allow_root_with_key: false # sshd
 
 # false to disable TCP Forwarding. Set to true to allow TCP Forwarding.
 ssh_allow_tcp_forwarding: false # sshd
