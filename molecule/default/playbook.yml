@@ -2,11 +2,18 @@
 - name: Converge
   hosts: all
   pre_tasks:
-    - name: install openssh-server
-      package:
-        name: openssh-server
-    - name: install openssh-clients
-      package:
-        name: openssh-clients
+    - name: Install openssh on CentOS
+      yum:
+        name:
+          - openssh-clients
+          - openssh-server
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    - name: Install openssh on Debian/Ubuntu
+      apt:
+        name:
+          - openssh-server
+          - openssh-clients
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
   roles:
     - role: arillso.sshd
