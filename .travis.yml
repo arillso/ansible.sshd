@@ -6,12 +6,9 @@ env:
   global:
     - ROLE_NAME: sshd
   matrix:
-    - MOLECULE_DISTRO: centos7
     - MOLECULE_DISTRO: centos6
     - MOLECULE_DISTRO: ubuntu1804
-    - MOLECULE_DISTRO: debian9
     - MOLECULE_DISTRO: debian10
-    - MOLECULE_DISTRO: fedora29
 
 install:
   - pip install molecule docker
