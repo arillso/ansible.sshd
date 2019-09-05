@@ -73,7 +73,7 @@
   when: sshd_register_moduli.stdout
 
 - name: include tasks to setup ca keys and principals
-  include_tasks: ca_keys_and_principals.yml
+  include_tasks: subtask/ca_keys_and_principals.yml
   when: ssh_trusted_user_ca_keys_file | length > 0
 
 - name: include tasks to setup 2FA
