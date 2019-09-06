@@ -1,0 +1,23 @@
+---
+- name: Converge
+  hosts: all
+  pre_tasks:
+    - name: Install openssh on CentOS
+      yum:
+        name:
+          - openssh-clients
+          - openssh-server
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    - name: Install openssh on Debian/Ubuntu
+      apt:
+        name:
+          - openssh-server
+          - openssh-client
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    - name: workaround directory
+      file:
+        path: '/var/run/sshd'
+        state: directory
+
+  roles:
+    - role: arillso.sshd

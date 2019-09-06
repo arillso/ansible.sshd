@@ -19,146 +19,29 @@
     - configuration
 
 - name: get openssh-version
-  shell: executable=/bin/bash set -o pipefail | ssh -V 2>&1 | sed -r 's/.*_([0-9]*\.[0-9]).*/\1/g'
+  shell: set -o pipefail && ssh -V 2>&1 | sed -r 's/.*_([0-9]*\.[0-9]).*/\1/g'
+  args:
+    executable: /bin/bash
   changed_when: false
   register: sshd_version
-  check_mode: no
-  tags:
-    - configuration
+  check_mode: false
 
-- name: set hostkeys according to openssh-version
-  set_fact:
-    ssh_host_key_files:
-      [
-        '/etc/ssh/ssh_host_rsa_key',
-        '/etc/ssh/ssh_host_ecdsa_key',
-        '/etc/ssh/ssh_host_ed25519_key',
-      ]
-  when: sshd_version.stdout >= '6.3' and not ssh_host_key_files
-  tags:
-    - configuration
+- name: include tasks to create crypo-vars
+  include_tasks: subtasks/crypto.yml
 
-- name: set hostkeys according to openssh-version
-  set_fact:
-    ssh_host_key_files:
-      ['/etc/ssh/ssh_host_rsa_key', '/etc/ssh/ssh_host_ecdsa_key']
-  when: sshd_version.stdout >= '6.0' and not ssh_host_key_files
-  tags:
-    - configuration
-
-- name: set hostkeys according to openssh-version
-  set_fact:
-    ssh_host_key_files: ['/etc/ssh/ssh_host_rsa_key']
-  when: sshd_version.stdout >= '5.3' and not ssh_host_key_files
-  tags:
-    - configuration
-
-- name: set weak macs according to openssh-version if openssh >= 7.6
-  set_fact:
-    ssh_macs: '{{ ssh_macs_76_default }}'
-  when: sshd_version.stdout >= '7.6' and not ssh_macs
-  tags:
-    - configuration
-
-- name: set weak macs according to openssh-version if openssh >= 6.6
-  set_fact:
-    ssh_macs: '{{ ssh_macs_66_weak }}'
-  when: sshd_version.stdout >= '6.6' and ssh_server_weak_hmac and not ssh_macs
-  tags:
-    - configuration
-
-- name: set macs according to openssh-version if openssh >= 6.6
-  set_fact:
-    ssh_macs: '{{ ssh_macs_66_default }}'
-  when: sshd_version.stdout >= '6.6' and not ssh_macs
-  tags:
-    - configuration
-
-- name: set weak macs according to openssh-version
-  set_fact:
-    ssh_macs: '{{ ssh_macs_59_weak }}'
-  when: sshd_version.stdout >= '5.9' and ssh_server_weak_hmac and not ssh_macs
-  tags:
-    - configuration
-
-- name: set macs according to openssh-version
-  set_fact:
-    ssh_macs: '{{ ssh_macs_59_default }}'
-  when: sshd_version.stdout >= '5.9' and not ssh_macs
-  tags:
-    - configuration
-
-- name: set macs according to openssh-version
-  set_fact:
-    ssh_macs: '{{ ssh_macs_53_default }}'
-  when: sshd_version.stdout >= '5.3' and not ssh_macs
-  tags:
-    - configuration
-
-- name: set macs according to openssh-version
-  set_fact:
-    ssh_macs: '{{ ssh_macs_53_default }}'
-  when: sshd_version.stdout >= '5.3' and not ssh_macs
-  tags:
-    - configuration
-
-- name: set weak ciphers according to openssh-version if openssh >= 6.6
-  set_fact:
-    ssh_ciphers: '{{ ssh_ciphers_66_weak }}'
-  when: sshd_version.stdout >= '6.6' and ssh_server_cbc_required and not ssh_ciphers
-  tags:
-    - configuration
-
-- name: set ciphers according to openssh-version if openssh >= 6.6
-  set_fact:
-    ssh_ciphers: '{{ ssh_ciphers_66_default }}'
-  when: sshd_version.stdout >= '6.6' and not ssh_ciphers
-  tags:
-    - configuration
-
-- name: set weak ciphers according to openssh-version
-  set_fact:
-    ssh_ciphers: '{{ ssh_ciphers_53_weak }}'
-  when: sshd_version.stdout >= '5.3' and ssh_server_cbc_required and not ssh_ciphers
-  tags:
-    - configuration
-
-- name: set ciphers according to openssh-version
-  set_fact:
-    ssh_ciphers: '{{ ssh_ciphers_53_default }}'
-  when: sshd_version.stdout >= '5.3' and not ssh_ciphers
-  tags:
-    - configuration
-
-- name: set weak kex according to openssh-version if openssh >= 6.6
-  set_fact:
-    ssh_kex: '{{ ssh_kex_66_weak }}'
-  when: sshd_version.stdout >= '6.6' and ssh_server_weak_kex and not ssh_kex
-  tags:
-    - configuration
-
-- name: set kex according to openssh-version if openssh >= 6.6
-  set_fact:
-    ssh_kex: '{{ ssh_kex_66_default }}'
-  when: sshd_version.stdout >= '6.6' and not ssh_kex
-  tags:
-    - configuration
-
-- name: set weak kex according to openssh-version
-  set_fact:
-    ssh_kex: '{{ ssh_kex_59_weak }}'
-  when: sshd_version.stdout >= '5.9' and ssh_server_weak_kex and not ssh_kex
-  tags:
-    - configuration
-
-- name: set kex according to openssh-version
-  set_fact:
-    ssh_kex: '{{ ssh_kex_59_default }}'
-  when: sshd_version.stdout >= '5.9' and not ssh_kex
-  tags:
-    - configuration
+- name: create revoked_keys and set permissions to root/600
+  become: true
+  template:
+    src: 'revoked_keys.j2'
+    dest: '/etc/ssh/revoked_keys'
+    mode: '0600'
+    owner: '{{ ssh_owner }}'
+    group: '{{ ssh_group }}'
+  notify: restart sshd
+  when: ssh_server_hardening | bool
 
 - name: create sshd_config and set permissions to root/600
+  become: true
   template:
     src: 'opensshd.conf.j2'
     dest: '/etc/ssh/sshd_config'
@@ -167,16 +50,42 @@
     group: '{{ ssh_group }}'
     validate: '/usr/sbin/sshd -T -C user=root -C host=localhost -C addr=localhost -f %s'
   notify: restart sshd
-  tags:
-    - configuration
+  when: ssh_server_hardening | bool
 
 - name: create ssh_config and set permissions to root/644
   become: true
   template:
     src: 'openssh.conf.j2'
     dest: '/etc/ssh/ssh_config'
-    mode: 0644
+    mode: '0644'
     owner: '{{ ssh_owner }}'
     group: '{{ ssh_group }}'
-  tags:
-    - configuration
+  when: ssh_client_hardening | bool
+
+- name: Check if {{ sshd_moduli_file }} contains weak DH parameters
+  shell: awk '$5 < {{ sshd_moduli_minimum }}' {{ sshd_moduli_file }}
+  register: sshd_register_moduli
+  changed_when: false
+  check_mode: false
+
+- name: remove all small primes
+  shell:
+    awk '$5 >= {{ sshd_moduli_minimum }}' {{ sshd_moduli_file }} > {{ sshd_moduli_file }}.new ;
+    [ -r {{ sshd_moduli_file }}.new -a -s {{ sshd_moduli_file }}.new ] && mv {{ sshd_moduli_file }}.new {{ sshd_moduli_file }} || true
+  notify: restart sshd
+  when: sshd_register_moduli.stdout
+
+- name: include tasks to setup ca keys and principals
+  include_tasks: subtasks/ca_keys_and_principals.yml
+  when: ssh_trusted_user_ca_keys_file | length > 0
+
+- name: include tasks to setup 2FA
+  include_tasks: subtasks/2fa.yml
+  when:
+    - ssh_use_pam | bool
+    - ssh_challengeresponseauthentication | bool
+    - ssh_google_auth | bool
+
+- name: include selinux specific tasks
+  include_tasks: subtasks/selinux.yml
+  when: ansible_selinux and ansible_selinux.status == "enabled"
