@@ -13,6 +13,7 @@
         name:
           - openssh-server
           - openssh-client
+        update_cache: true
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
     - name: workaround directory
       file:

@@ -11,8 +11,7 @@ env:
     - MOLECULE_DISTRO: debian10
 
 install:
-  - pip install molecule docker
-
+  - pip install docker molecule yamllint ansible-lint flake8
   - git clone https://github.com/arillso/tests molecule/default/lint
 
 before_script:
