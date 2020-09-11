@@ -65,7 +65,7 @@ ssh_gateway_ports: false # sshd
 ssh_allow_agent_forwarding: false # sshd
 
 # true if SSH has PAM support
-ssh_pam_support: true
+ssh_pam_support: "{{ true if not 'Windows' in ansible_distribution else false }}"
 
 # false to disable pam authentication.
 ssh_use_pam: false # sshd
@@ -80,7 +80,7 @@ ssh_pam_device: false # sshd
 ssh_gssapi_support: false
 
 # true if SSH support Kerberos
-ssh_kerberos_support: true
+ssh_kerberos_support: "{{ true if not 'Windows' in ansible_distribution else false }}"
 
 # if specified, login is disallowed for user names that match one of the patterns.
 ssh_deny_users: '' # sshd

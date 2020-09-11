@@ -5,9 +5,9 @@
   include_vars: '{{ loop_vars }}'
   with_first_found:
     - files:
-        - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'
-        - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'
-        - '{{ ansible_distribution }}.yml'
+        - '{{ distribution }}-{{ distribution_version }}.yml'
+        - '{{ distribution }}-{{ distribution_major_version }}.yml'
+        - '{{ distribution }}.yml'
         - '{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml'
         - '{{ ansible_os_family }}.yml'
         - '{{ ansible_system }}.yml'
@@ -16,77 +16,32 @@
         - 'vars'
   loop_control:
     loop_var: loop_vars
+  vars:
+    distribution: '{{ ansible_distribution }}'
+    distribution_version: '{{ ansible_distribution_version }}'
+    distribution_major_version: '{{ ansible_distribution_major_version }}'
   tags:
     - configuration
+    - packages
 
-- name: get openssh-version
-  shell: set -o pipefail && ssh -V 2>&1 | sed -r 's/.*_([0-9]*\.[0-9]).*/\1/g'
-  args:
-    executable: /bin/bash
-  changed_when: false
-  register: sshd_version
-  check_mode: false
-
-- name: include tasks to create crypo-vars
-  include_tasks: subtasks/crypto.yml
-
-- name: create revoked_keys and set permissions to root/600
-  become: true
-  template:
-    src: 'revoked_keys.j2'
-    dest: '/etc/ssh/revoked_keys'
-    mode: '0600'
-    owner: '{{ ssh_owner }}'
-    group: '{{ ssh_group }}'
-  notify: restart sshd
-  when: ssh_server_hardening | bool
-
-- name: create sshd_config and set permissions to root/600
-  become: true
-  template:
-    src: 'opensshd.conf.j2'
-    dest: '/etc/ssh/sshd_config'
-    mode: '0600'
-    owner: '{{ ssh_owner }}'
-    group: '{{ ssh_group }}'
-    validate: '/usr/sbin/sshd -T -C user=root -C host=localhost -C addr=localhost -f %s'
-  notify: restart sshd
-  when: ssh_server_hardening | bool
-
-- name: create ssh_config and set permissions to root/644
-  become: true
-  template:
-    src: 'openssh.conf.j2'
-    dest: '/etc/ssh/ssh_config'
-    mode: '0644'
-    owner: '{{ ssh_owner }}'
-    group: '{{ ssh_group }}'
-  when: ssh_client_hardening | bool
-
-- name: Check if {{ sshd_moduli_file }} contains weak DH parameters
-  shell: awk '$5 < {{ sshd_moduli_minimum }}' {{ sshd_moduli_file }}
-  register: sshd_register_moduli
-  changed_when: false
-  check_mode: false
-
-- name: remove all small primes
-  shell:
-    awk '$5 >= {{ sshd_moduli_minimum }}' {{ sshd_moduli_file }} > {{ sshd_moduli_file }}.new ;
-    [ -r {{ sshd_moduli_file }}.new -a -s {{ sshd_moduli_file }}.new ] && mv {{ sshd_moduli_file }}.new {{ sshd_moduli_file }} || true
-  notify: restart sshd
-  when: sshd_register_moduli.stdout
-
-- name: include tasks to setup ca keys and principals
-  include_tasks: subtasks/ca_keys_and_principals.yml
-  when: ssh_trusted_user_ca_keys_file | length > 0
-
-- name: include tasks to setup 2FA
-  include_tasks: subtasks/2fa.yml
-  when:
-    - ssh_use_pam | bool
-    - ssh_challengeresponseauthentication | bool
-    - ssh_google_auth | bool
-
-- name: include selinux specific tasks
-  include_tasks: subtasks/selinux.yml
-  when: ansible_selinux and ansible_selinux.status == "enabled"
+- name: include distribution tasks
+  include_tasks: '{{ loop_distribution }}'
+  with_first_found:
+    - files:
+        - '{{ distribution }}-{{ distribution_version }}.yml'
+        - '{{ distribution }}-{{ distribution_major_version }}.yml'
+        - '{{ distribution }}.yml'
+        - '{{ ansible_os_family }}.yml'
+        - '{{ ansible_system }}.yml'
+        - 'defaults.yml'
+      paths:
+        - 'distribution'
+  loop_control:
+    loop_var: loop_distribution
+  vars:
+    distribution: '{{ ansible_distribution }}'
+    distribution_version: '{{ ansible_distribution_version }}'
+    distribution_major_version: '{{ ansible_distribution_major_version }}'
+  tags:
+    - configuration
+    - packages

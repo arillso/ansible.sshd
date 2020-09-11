@@ -1,0 +1,44 @@
+---
+# tasks file for arillso.sshd
+
+- name: 'Windows : Install OpenSSH'
+  become_method: runas
+  become_user: System
+  become: yes
+  sbaerlocher.windows.win_capability:
+    name: 'OpenSSH.Server~~~~0.0.1.0'
+
+- name: 'Windows : Get openssh-version'
+  win_shell: ssh -V
+  changed_when: false
+  register: sshd_verstion_string
+  check_mode: false
+
+- name: 'Windows : Set openssh-version'
+  set_fact:
+    sshd_version:
+      stdout: '{{ sshd_verstion_string.stderr | regex_search("(\d{1,2}\.\d{1,2})(?!\.)") }}'
+
+- name: 'Windows : Include tasks to create crypo-vars'
+  include_tasks: subtasks/crypto.yml
+
+- name: 'Windows : Set the default shell to PowerShell'
+  win_regedit:
+    path: HKLM:\SOFTWARE\OpenSSH
+    name: DefaultShell
+    data: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+    type: string
+    state: present
+
+- name: 'Windows : Create sshd_config'
+  win_template:
+    src: 'opensshd.conf.j2'
+    dest: 'C:\ProgramData\ssh\sshd_config'
+  notify: restart windows sshd
+
+- name: 'Windows : Create revoked_keys and set permissions to root/600'
+  become: true
+  template:
+    src: 'revoked_keys.j2'
+    dest: 'C:\ProgramData\ssh\revoked_keys'
+  notify: restart windows sshd

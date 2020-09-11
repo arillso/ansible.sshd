@@ -230,7 +230,7 @@ DebianBanner {{ 'yes' if (ssh_print_debian_banner|bool) else 'no' }}
 {% endif %}
 
 # Reject keys that are explicitly blacklisted
-RevokedKeys /etc/ssh/revoked_keys
+RevokedKeys {{ sshd_config_path }}/revoked_keys
 
 {% if ssh_sftp_enabled -%}
 # SFTP matching configuration
@@ -239,7 +239,7 @@ RevokedKeys /etc/ssh/revoked_keys
 # override default of no subsystems
 # Subsystem sftp /opt/app/openssh5/libexec/sftp-server
 
-Subsystem sftp internal-sftp -l INFO -f LOCAL6
+Subsystem	{{ sshd_sftp_subsystem }}
 
 # These lines must appear at the *end* of sshd_config
 Match Group sftponly

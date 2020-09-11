@@ -1,8 +1,13 @@
 ---
 # handlers file for arillso.sshd
 
-- name: restart sshd
+- name: restart linux sshd
   become: true
   service:
-    name: "{{ sshd_service_name }}"
+    name: '{{ sshd_service_name }}'
+    state: restarted
+
+- name: restart windows sshd
+  win_service:
+    name: '{{ sshd_service_name }}'
     state: restarted

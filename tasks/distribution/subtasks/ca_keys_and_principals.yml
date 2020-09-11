@@ -9,7 +9,7 @@
     mode: '0644'
     owner: '{{ ssh_owner }}'
     group: '{{ ssh_group }}'
-  notify: restart sshd
+  notify: restart linux sshd
 
 - name: Create ssh authorized principals directories
   become: true
