@@ -2,6 +2,8 @@
 # vars file for arillso.sshd
 
 sshd_service_name: ssh
+sshd_config_path: /etc/ssh
+sshd_sftp_subsystem: 'sftp internal-sftp -l INFO -f LOCAL6'
 ssh_owner: root
 ssh_group: root
 ssh_selinux_dependency_packages:
