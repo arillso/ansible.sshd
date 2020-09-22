@@ -4,7 +4,7 @@
 - name: 'Windows : Install OpenSSH'
   become_method: runas
   become_user: System
-  become: yes
+  become: true
   sbaerlocher.windows.win_capability:
     name: 'OpenSSH.Server~~~~0.0.1.0'
 
@@ -36,8 +36,7 @@
     dest: 'C:\ProgramData\ssh\sshd_config'
   notify: restart windows sshd
 
-- name: 'Windows : Create revoked_keys and set permissions to root/600'
-  become: true
+- name: 'Windows : Create revoked_keys'
   template:
     src: 'revoked_keys.j2'
     dest: 'C:\ProgramData\ssh\revoked_keys'
