@@ -72,6 +72,6 @@
 - name: 'Linux : include selinux specific tasks'
   include_tasks: subtasks/selinux.yml
   when: 
-    - ansible_selinux 
+    - ansible_selinux | bool
     - ansible_selinux.status == "enabled"
     - ssh_configure_selinux is true

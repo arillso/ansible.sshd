@@ -242,4 +242,9 @@ ssh_max_sessions: 10
 ssh_x11_forwarding: no
 ssh_x11_use_localhost: yes
 ssh_configure_selinux: true
->>>>>>> allow_to_configure_selinux_or_not
+
+sshd_kerberos_authentication: no
+sshd_kerberos_or_local_passwd: yes
+sshd_kerberos_ticket_cleanup: yes 
+sshd_kerberos_Get_AFS_Token: no
+sshd_kerberos_Use_Kuser_ok: yes

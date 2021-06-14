@@ -42,11 +42,11 @@ HostKey {{key}}          # Req 20
 Protocol 2
 
 # Make sure sshd checks file modes and ownership before accepting logins. This prevents accidental misconfiguration.
-StrictModes {{ 'yes' if (ssh_strict_modes | bool) else 'no' }}
+StrictModes {{ 'yes' if (sshd_strict_modes | bool) else 'no' }}
 
 # Logging, obsoletes QuietMode and FascistLogging
-SyslogFacility {{ ssh_syslog_facility }}
-LogLevel {{ ssh_log_level }}
+SyslogFacility {{ sshd_syslog_facility }}
+LogLevel {{ sshd_log_level }}
 
 # Cryptography
 # ------------
@@ -90,9 +90,9 @@ UseLogin no
 UsePrivilegeSeparation {% if (ansible_distribution == 'Debian' and ansible_distribution_major_version <= '6') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version <= '6') -%}{{ssh_ps53}}{% else %}{{ssh_ps59}}{% endif %}
 {% endif %}
 
-LoginGraceTime {{ ssh_login_grace_time }}
+LoginGraceTime {{ sshd_login_grace_time }}
 MaxAuthTries {{ssh_max_auth_retries}}
-MaxSessions {{ ssh_max_sessions }}
+MaxSessions {{ sshd_max_sessions }}
 MaxStartups {{ssh_max_startups}}
 
 # Enable public key authentication
@@ -124,10 +124,11 @@ ChallengeResponseAuthentication {{ 'yes' if (ssh_challengeresponseauthentication
 
 {% if ssh_kerberos_support -%}
 # Only enable Kerberos authentication if it is configured.
-KerberosAuthentication no
-KerberosOrLocalPasswd no
-KerberosTicketCleanup yes
-#KerberosGetAFSToken no
+KerberosAuthentication {{ 'yes' if (sshd_kerberos_authentication | bool) else 'no' }}
+KerberosOrLocalPasswd {{ 'yes' if (sshd_kerberos_or_local_passwd | bool) else 'no' }}
+KerberosTicketCleanup  {{ 'yes' if (sshd_kerberos_ticket_cleanup | bool) else 'no' }}
+#KerberosGetAFSToken {{ 'yes' if (sshd_kerberos_Get_AFS_Token | bool) else 'no' }}
+#KerberosUseKuserok {{ 'yes' if (sshd_kerberos_Use_Kuser_ok| bool) else 'no' }}
 {% endif %}
 
 {% if ssh_gssapi_support %}
@@ -197,8 +198,8 @@ GatewayPorts no
 {% endif %}
 
 # Disable X11 forwarding, since local X11 display could be accessed through forwarded connection.
-X11Forwarding {{ 'yes' if (ssh_x11_forwarding | bool) else 'no' }}
-X11UseLocalhost {{ 'yes' if (ssh_x11_use_localhost | bool) else 'no' }}
+X11Forwarding {{ 'yes' if (sshd_x11_forwarding | bool) else 'no' }}
+X11UseLocalhost {{ 'yes' if (sshd_x11_use_localhost | bool) else 'no' }}
 
 # User environment configuration
 # ==============================
