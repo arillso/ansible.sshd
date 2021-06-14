@@ -233,3 +233,12 @@ ssh_custom_options: []
 
 # Custom options for SSH daemon configuration file
 sshd_custom_options: []
+
+ssh_strict_modes: yes
+ssh_log_level: 'VERBOSE'
+ssh_syslog_facility: 'AUTH'
+ssh_login_grace_time: '30s'
+ssh_max_sessions: 10
+ssh_x11_forwarding: no
+ssh_x11_use_localhost: yes
+

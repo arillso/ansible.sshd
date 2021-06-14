@@ -42,11 +42,11 @@ HostKey {{key}}          # Req 20
 Protocol 2
 
 # Make sure sshd checks file modes and ownership before accepting logins. This prevents accidental misconfiguration.
-StrictModes yes
+StrictModes {{ 'yes' if (ssh_strict_modes | bool) else 'no' }}
 
 # Logging, obsoletes QuietMode and FascistLogging
-SyslogFacility AUTH
-LogLevel VERBOSE
+SyslogFacility {{ ssh_syslog_facility }}
+LogLevel {{ ssh_log_level }}
 
 # Cryptography
 # ------------
@@ -90,9 +90,9 @@ UseLogin no
 UsePrivilegeSeparation {% if (ansible_distribution == 'Debian' and ansible_distribution_major_version <= '6') or (ansible_os_family in ['Oracle Linux', 'RedHat'] and ansible_distribution_major_version <= '6') -%}{{ssh_ps53}}{% else %}{{ssh_ps59}}{% endif %}
 {% endif %}
 
-LoginGraceTime 30s
+LoginGraceTime {{ ssh_login_grace_time }}
 MaxAuthTries {{ssh_max_auth_retries}}
-MaxSessions 10
+MaxSessions {{ ssh_max_sessions }}
 MaxStartups {{ssh_max_startups}}
 
 # Enable public key authentication
@@ -197,8 +197,8 @@ GatewayPorts no
 {% endif %}
 
 # Disable X11 forwarding, since local X11 display could be accessed through forwarded connection.
-X11Forwarding no
-X11UseLocalhost yes
+X11Forwarding {{ 'yes' if (ssh_x11_forwarding | bool) else 'no' }}
+X11UseLocalhost {{ 'yes' if (ssh_x11_use_localhost | bool) else 'no' }}
 
 # User environment configuration
 # ==============================
