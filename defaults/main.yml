@@ -233,3 +233,6 @@ ssh_custom_options: []
 
 # Custom options for SSH daemon configuration file
 sshd_custom_options: []
+
+# Custom banner file for SSH daemon configuration file.
+sshd_banner_file: '/etc/ssh/banner.txt'
