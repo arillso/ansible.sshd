@@ -393,6 +393,13 @@ change default sftp chroot location
 ssh_sftp_chroot_dir: "{{ sftp_chroot_dir | default('/home/%u') }}"
 ```
 
+If true, password login for SFTP is allowed
+
+```yml
+ssh_server_sftp_password_login: false
+ssh_server_sftp_password_login: true
+```
+
 ### ssh_client_roaming
 
 enable experimental client roaming
