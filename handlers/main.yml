@@ -1,6 +1,4 @@
 ---
-# handlers file for arillso.sshd
-
 - name: restart linux sshd
   become: true
   service:

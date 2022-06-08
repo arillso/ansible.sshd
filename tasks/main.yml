@@ -1,6 +1,4 @@
 ---
-# tasks file for arillso.sshd
-
 - name: add OS specific variables
   include_vars: '{{ loop_vars }}'
   with_first_found:

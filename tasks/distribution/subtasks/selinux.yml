@@ -1,6 +1,4 @@
 ---
-# tasks file for arillso.sshd
-
 - name: install selinux dependencies when selinux is installed
   become: true
   package:

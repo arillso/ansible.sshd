@@ -1,6 +1,4 @@
 ---
-# tasks file for arillso.sshd
-
 - name: 'Windows : Install OpenSSH'
   become_method: runas
   become_user: System

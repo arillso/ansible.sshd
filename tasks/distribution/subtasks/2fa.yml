@@ -1,6 +1,4 @@
 ---
-# tasks file for arillso.sshd
-
 - name: Install google authenticator PAM module
   become: true
   apt:

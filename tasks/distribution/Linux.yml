@@ -1,6 +1,4 @@
 ---
-# tasks file for arillso.sshd
-
 - name: 'Linux : get openssh-version'
   shell: set -o pipefail && ssh -V 2>&1 | sed -r 's/.*_([0-9]*\.[0-9]).*/\1/g'
   args:

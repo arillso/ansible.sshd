@@ -1,6 +1,4 @@
 ---
-# tasks file for arillso.sshd
-
 - name: set hostkeys according to openssh-version
   set_fact:
     ssh_host_key_files:

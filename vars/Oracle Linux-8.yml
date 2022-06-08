@@ -1,6 +1,4 @@
 ---
-# vars file for arillso.sshd
-
 sshd_service_name: sshd
 ssh_owner: root
 ssh_group: root

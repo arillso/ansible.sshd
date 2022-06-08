@@ -1,6 +1,4 @@
 ---
-# tasks file for arillso.sshd
-
 - name: Set ssh CA pub keys
   become: true
   template:

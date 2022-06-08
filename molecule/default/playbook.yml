@@ -21,4 +21,4 @@
         state: directory
 
   roles:
-    - role: arillso.sshd
+    - role: skriptfabrik.sshd
