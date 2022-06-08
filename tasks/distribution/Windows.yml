@@ -35,7 +35,7 @@
   notify: restart windows sshd
 
 - name: 'Windows : Create revoked_keys'
-  ansible.builtin.template:
+  ansible.windows.win_template:
     src: 'revoked_keys.j2'
     dest: 'C:\ProgramData\ssh\revoked_keys'
   notify: restart windows sshd

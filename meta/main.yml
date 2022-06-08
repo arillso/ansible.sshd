@@ -3,9 +3,9 @@
 galaxy_info:
   role_name: sshd
   author: skriptfabrik
-  description: "This role provides secure ssh-client and ssh-server configurations. It is intended to be compliant with the DevSec SSH Baseline."
+  description: This role provides secure ssh-client and ssh-server configurations. It is intended to be compliant with the DevSec SSH Baseline.
   license: MIT
-  min_ansible_version: 2
+  min_ansible_version: '2'
   platforms:
     - name: Debian
       versions:
@@ -18,5 +18,4 @@ galaxy_info:
         - xenial
     - name: EL
       versions:
-        - 6
-        - 7
+        - all
