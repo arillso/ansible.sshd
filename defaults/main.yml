@@ -63,7 +63,7 @@ ssh_gateway_ports: false # sshd
 ssh_allow_agent_forwarding: false # sshd
 
 # true if SSH has PAM support
-ssh_pam_support: "{{ true if not 'Windows' in ansible_distribution else false }}"
+ssh_pam_support: "{{ false if 'Windows' in ansible_distribution or ansible_distribution in  ['CentOS', 'Red Hat Enterprise Linux'] else true }}"
 
 # false to disable pam authentication.
 ssh_use_pam: false # sshd

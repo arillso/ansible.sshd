@@ -3,20 +3,24 @@
   hosts: all
   pre_tasks:
     - name: Install openssh on CentOS
-      yum:
-        name:
-          - openssh-clients
-          - openssh-server
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+      block:
+        - name: Install openssh on CentOS
+          ansible.builtin.yum:
+            name:
+              - openssh-clients
+              - openssh-server
+        - name: Generate host keys on CentOS
+          ansible.builtin.command: ssh-keygen -A
     - name: Install openssh on Debian/Ubuntu
-      apt:
+      ansible.builtin.apt:
         name:
           - openssh-server
           - openssh-client
         update_cache: true
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
     - name: workaround directory
-      file:
+      ansible.builtin.file:
         path: '/var/run/sshd'
         state: directory
 
