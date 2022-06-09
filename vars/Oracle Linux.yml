@@ -1,6 +1,4 @@
 ---
-# vars file for arillso.sshd
-
 sshd_service_name: sshd
 sshd_config_path: /etc/ssh
 sshd_sftp_subsystem: 'sftp internal-sftp -l INFO -f LOCAL6'

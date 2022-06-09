@@ -1,9 +1,7 @@
 ---
-# tasks file for arillso.sshd
-
 - name: install selinux dependencies when selinux is installed
   become: true
-  package:
+  ansible.builtin.package:
     name: '{{ item }}'
     state: present
   with_items:
@@ -11,7 +9,7 @@
 
 - name: 'authorize {{ ssh_server_ports }} ports for selinux'
   become: true
-  seport:
+  community.general.seport:
     ports: '{{ item }}'
     proto: tcp
     setype: ssh_port_t
@@ -21,7 +19,7 @@
 
 - name: check if ssh_password module is already installed
   become: true
-  shell: 'set -o pipefail && semodule -l | grep ssh_password'
+  ansible.builtin.shell: 'set -o pipefail && semodule -l | grep ssh_password'
   args:
     executable: /bin/bash
   register: ssh_password_module
@@ -31,10 +29,11 @@
 
 # The following tasks only get executed when selinux is in state enforcing, UsePam is 'no' and the ssh_password module is installed.
 # See this issue for more info: https://github.com/hardening-io/ansible-ssh-hardening/issues/23
-- block:
+- name: enforce selinux configuration
+  block:
     - name: Create selinux custom policy drop folder
       become: true
-      file:
+      ansible.builtin.file:
         path: '{{ ssh_custom_selinux_dir }}'
         state: 'directory'
         owner: 'root'
@@ -43,21 +42,28 @@
 
     - name: Distributing custom selinux policies
       become: true
-      copy:
+      ansible.builtin.copy:
         src: 'ssh_password'
         dest: '{{ ssh_custom_selinux_dir }}'
+        mode: '0640'
 
     - name: check and compile policy
       become: true
-      command: checkmodule -M -m -o {{ ssh_custom_selinux_dir }}/ssh_password.mod {{ ssh_custom_selinux_dir }}/ssh_password
+      ansible.builtin.command: checkmodule -M -m -o {{ ssh_custom_selinux_dir }}/ssh_password.mod {{ ssh_custom_selinux_dir }}/ssh_password
+      register: _checkmodule
+      changed_when: _checkmodule.rc != 0
 
     - name: create selinux policy module package
       become: true
-      command: semodule_package -o {{ ssh_custom_selinux_dir }}/ssh_password.pp  -m {{ ssh_custom_selinux_dir }}/ssh_password.mod
+      ansible.builtin.command: semodule_package -o {{ ssh_custom_selinux_dir }}/ssh_password.pp  -m {{ ssh_custom_selinux_dir }}/ssh_password.mod
+      register: _semodule_package
+      changed_when: _semodule_package.rc != 0
 
     - name: install selinux policy
       become: true
-      command: semodule -i {{ ssh_custom_selinux_dir }}/ssh_password.pp
+      ansible.builtin.command: semodule -i {{ ssh_custom_selinux_dir }}/ssh_password.pp
+      register: _semodule
+      changed_when: _semodule.rc != 0
 
   when: not ssh_use_pam | bool and ssh_password_module.stdout.find('ssh_password') != 0
 
@@ -65,5 +71,5 @@
 # See http://danwalsh.livejournal.com/12333.html for more info
 - name: remove selinux-policy when Pam is used, because Allowing sshd to read the shadow file directly is considered a potential security risk
   become: true
-  command: semodule -r ssh_password
+  ansible.builtin.command: semodule -r ssh_password
   when: ssh_use_pam | bool and ssh_password_module.stdout.find('ssh_password') == 0

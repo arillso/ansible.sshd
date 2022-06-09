@@ -1,23 +1,21 @@
 ---
-# tasks file for arillso.sshd
-
 - name: Install google authenticator PAM module
   become: true
-  apt:
+  ansible.builtin.apt:
     name: 'libpam-google-authenticator'
     state: present
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Install google authenticator PAM module
   become: true
-  yum:
+  ansible.builtin.yum:
     name: 'google-authenticator'
     state: present
   when: ansible_os_family == 'RedHat' or ansible_os_family == 'Oracle Linux'
 
 - name: Add google auth module to PAM
   become: true
-  pamd:
+  community.general.pamd:
     name: 'sshd'
     type: 'auth'
     control: 'required'
@@ -25,7 +23,7 @@
 
 - name: Remove password auth from PAM
   become: true
-  pamd:
+  community.general.pamd:
     name: 'sshd'
     type: 'auth'
     control: 'substack'
@@ -35,7 +33,7 @@
 
 - name: Remove password auth from PAM
   become: true
-  replace:
+  ansible.builtin.replace:
     dest: '/etc/pam.d/sshd'
     regexp: '^@include common-auth'
     replace: '#@include common-auth'

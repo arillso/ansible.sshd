@@ -1,15 +1,16 @@
 # Ansible Role: sshd
 
-[![Build Status](https://img.shields.io/travis/arillso/ansible.sshd.svg?branch=master&style=popout-square)](https://travis-ci.org/arillso/ansible.sshd) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](https://sbaerlo.ch/licence) [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-sshd-blue.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd) [![Ansible Role](https://img.shields.io/ansible/role/d/21612.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd)
+[![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-sshd-blue.svg?style=popout-square)](https://galaxy.ansible.com/skriptfabrik/sshd) [![Ansible Role](https://img.shields.io/ansible/role/d/59443.svg?style=popout-square)](https://galaxy.ansible.com/skriptfabrik/sshd)
 
 ## Description
 
-This role provides secure ssh-client and ssh-server configurations. It is intended to be compliant with the [DevSec SSH Baseline](https://github.com/dev-sec/ssh-baseline).
+This role provides secure ssh-client and ssh-server configurations. It is intended to be compliant with the [DevSec SSH Baseline](https://github.com/dev-sec/ssh-baseline).  
+The role is a fork of [arillso.sshd](https://github.com/arillso/ansible.sshd).
 
 ## Installation
 
 ```bash
-ansible-galaxy install arillso.sshd
+ansible-galaxy install skriptfabrik.sshd
 ```
 
 ## Requirements
@@ -604,17 +605,18 @@ None
 ```yml
 - hosts: all
   roles:
-    - arillso.sshd
+    - skriptfabrik.sshd
 ```
 
 ## Author
 
 - [Simon Bärlocher](https://sbaerlocher.ch)
+- [Frank Giesecke](https://github.com/FrankGiesecke)
 
 ## License
 
-This project is under the MIT License. See the [LICENSE](https://sbaerlo.ch/licence) file for the full license text.
+This project is under the MIT License.
 
 ## Copyright
 
-(c) 2019, Arilso
+(c) 2022, skriptfabrik GmbH
